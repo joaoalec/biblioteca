@@ -10,7 +10,7 @@ Este é um sistema simples de gerenciamento de biblioteca desenvolvido em **Java
 - **Spring Boot**
 - **Maven**
 - **Spring Data JPA**
-- **H2 Database** (ou outro banco que estiver usando)
+- **H2 Database**
 - **Lombok**
 - **IDE Eclipse / IntelliJ**
 
@@ -22,7 +22,7 @@ Este é um sistema simples de gerenciamento de biblioteca desenvolvido em **Java
 - 📖 Listagem de todos os livros
 - ✏️ Atualização de dados de um livro
 - ❌ Remoção de livros
-- 🔎 Consulta por ID ou outros filtros (se aplicável)
+- 🔎 Consulta por ID ou outros filtros
 
 ---
 
