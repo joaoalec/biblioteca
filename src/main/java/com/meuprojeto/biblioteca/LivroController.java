@@ -1,10 +1,12 @@
 package com.meuprojeto.biblioteca;
 
+import com.meuprojeto.biblioteca.dto.LivroRequestDTO;
+import com.meuprojeto.biblioteca.dto.LivroResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -18,30 +20,34 @@ public class LivroController {
     private GoogleBooksService googleBooksService;
 
     @GetMapping
-    public List<Livro> listarTodos() {
-        return livroService.listarTodos();
+    public ResponseEntity<List<LivroResponseDTO>> listarTodos() {
+        return ResponseEntity.ok(livroService.listarTodos());
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Livro> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<LivroResponseDTO> buscarPorId(@PathVariable Long id) {
         return livroService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Livro salvar(@RequestBody Livro livro) {
-        return livroService.salvar(livro);
+    public ResponseEntity<LivroResponseDTO> salvar(@RequestBody LivroRequestDTO requestDTO) {
+        LivroResponseDTO livroSalvo = livroService.salvar(requestDTO);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(livroSalvo.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(livroSalvo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Livro> atualizar(@PathVariable Long id, @RequestBody Livro livro) {
-        return livroService.buscarPorId(id)
-                .map(l -> {
-                    livro.setId(id);
-                    return ResponseEntity.ok(livroService.salvar(livro));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<LivroResponseDTO> atualizar(@PathVariable Long id, @RequestBody LivroRequestDTO requestDTO) {
+        try {
+            return ResponseEntity.ok(livroService.atualizar(id, requestDTO));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -53,11 +59,9 @@ public class LivroController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
     @GetMapping("/externo")
-    public List<Livro> buscarLivrosExternos(@RequestParam String titulo) {
-        return googleBooksService.buscarLivros(titulo);
+    public ResponseEntity<List<LivroResponseDTO>> buscarLivrosExternos(@RequestParam String titulo) {
+        return ResponseEntity.ok(googleBooksService.buscarLivros(titulo));
     }
-
-
 }
-
